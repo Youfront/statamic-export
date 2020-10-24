@@ -1,0 +1,34 @@
+{
+    "name": "youfront/statamic-export",
+    "description": "Statamic Export",
+    "version": "1.0.0",
+    "require": {
+        "statamic/cms": "^3.0.0",
+        "league/csv": "^9.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Youfront\\Export\\": "src"
+        }
+    },
+    "authors": [
+        {
+            "name": "Anders Søgaard"
+        }
+    ],
+    "support": {
+        "email": "team@youfront.dk"
+    },
+    "extra": {
+        "statamic": {
+            "name": "Export",
+            "description": "Export ",
+            "editions": ["free"]
+        },
+        "laravel": {
+            "providers": [
+                "Youfront\\Export\\ServiceProvider"
+            ]
+        }
+    }
+}
