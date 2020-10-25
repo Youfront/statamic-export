@@ -33,6 +33,11 @@ class Export extends Action
         ]);
     }
 
+    public function authorize($user, $item)
+    {
+        return $user->can('view', $item);
+    }
+
     /**
      * Get array keys as headers.
      *

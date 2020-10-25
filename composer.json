@@ -1,7 +1,7 @@
 {
     "name": "youfront/statamic-export",
     "description": "Statamic Export",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "require": {
         "statamic/cms": "^3.0.0",
         "league/csv": "^9.0.0"
