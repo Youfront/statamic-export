@@ -1,5 +1,7 @@
 # Statamic Export
-Export addon for Statamic V3.
+![Explainer video][https://github.com/Youfront/statamic-export/blob/main/assets/explainer-video.gif?raw=true]
+
+This plugin easily exports your entries to CSV. Select the entries you like to export, and select "Export" from the actions.
 
 ## Installation
 Add the package using composer. And you're done! 😎
