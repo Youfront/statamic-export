@@ -1,5 +1,7 @@
 # Statamic Export
-![Explainer video][https://github.com/Youfront/statamic-export/blob/main/assets/explainer-video.gif?raw=true]
+<p align="center">
+    <img src="https://github.com/Youfront/statamic-export/blob/main/assets/explainer-video.gif?raw=true">
+</p>
 
 This plugin easily exports your entries to CSV. Select the entries you like to export, and select "Export" from the actions.
 
