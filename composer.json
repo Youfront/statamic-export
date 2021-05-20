@@ -2,8 +2,7 @@
     "name": "youfront/statamic-export",
     "description": "Statamic Export",
     "require": {
-        "statamic/cms": "^3.0.0",
-        "league/csv": "^9.0.0"
+        "statamic/cms": "^3.0.0"
     },
     "autoload": {
         "psr-4": {
