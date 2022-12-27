@@ -99,6 +99,11 @@ class Export extends Action
             $itemData = [];
 
             foreach ($headers as $header) {
+                if (is_array($item->$header)) {
+                    Arr::set($itemData, $header, json_encode($item->$header));
+                    continue;
+                }
+
                 Arr::set($itemData, $header, $item->$header);
             }
 
