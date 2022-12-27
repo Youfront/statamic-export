@@ -6,18 +6,37 @@ use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use League\Csv\CannotInsertRecord;
+use League\Csv\Exception;
 use League\Csv\Writer;
 use Statamic\Actions\Action;
 
 class Export extends Action
 {
     /**
+     * Exclude statamic fields
+     */
+    const EXCLUDED_COLUMNS = [
+        'blueprint',
+        'updated_by',
+    ];
+
+    /**
+     * Title
+     */
+    public static function title()
+    {
+        return __('CSV Export');
+    }
+
+    /**
      * Download items as CSV.
      *
      * @param $items
      * @param $values
      * @return false|Response
-     * @throws \League\Csv\CannotInsertRecord
+     * @throws CannotInsertRecord
+     * @throws Exception
      */
     public function download($items, $values)
     {
@@ -28,7 +47,7 @@ class Export extends Action
         $csv->insertOne($headers->toArray());
         $csv->insertAll($entries->toArray());
 
-        return new Response($csv->getContent(), 200, [
+        return new Response($csv->toString(), 200, [
             'Content-Disposition' => 'attachment; filename="' . $this::getFileName() . '"',
         ]);
     }
@@ -49,8 +68,14 @@ class Export extends Action
     {
         $headers = new Collection;
 
+        $headers->push('id');
+
         foreach ($items as $item) {
             foreach ($item->data()->keys() as $key) {
+                if (in_array($key, static::EXCLUDED_COLUMNS)) {
+                    continue;
+                }
+
                 $headers->push($key);
             }
         }
@@ -74,7 +99,7 @@ class Export extends Action
             $itemData = [];
 
             foreach ($headers as $header) {
-                Arr::set($itemData, $header, Arr::get($item->data(), $header));
+                Arr::set($itemData, $header, $item->$header);
             }
 
             $data->push($itemData);
