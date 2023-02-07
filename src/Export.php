@@ -12,6 +12,7 @@ use League\Csv\Writer;
 use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Actions\Action;
 use Statamic\Entries\Entry;
+use Statamic\Forms\Submission;
 use Throwable;
 
 class Export extends Action
@@ -102,7 +103,7 @@ class Export extends Action
 
     public function visibleTo($item)
     {
-        return $item instanceof Entry;
+        return $item instanceof Entry || $item instanceof Submission;
     }
 
     /**
