@@ -11,6 +11,7 @@ use League\Csv\Exception;
 use League\Csv\Writer;
 use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Actions\Action;
+use Statamic\Entries\Entry;
 use Throwable;
 
 class Export extends Action
@@ -97,6 +98,11 @@ class Export extends Action
         }
 
         return $headers = $headers->unique();
+    }
+
+    public function visibleTo($item)
+    {
+        return $item instanceof Entry;
     }
 
     /**
