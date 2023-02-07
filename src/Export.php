@@ -34,7 +34,11 @@ class Export extends Action
      */
     public function download($items, $values)
     {
-        $export_type = $this::getExportType();
+        try {
+            $export_type = config("statamic-export.collections.{$items[0]->collection->handle}", config("statamic-export.default", "csv"));
+        } catch (Throwable $t) {
+            $export_type = config("statamic-export.default", "csv");
+        }
 
         $headers = $this::getHeaders($items);
         $entries = $this::getEntries($headers, $items);
@@ -132,15 +136,5 @@ class Export extends Action
     private static function getFileName($export_type)
     {
         return sprintf('Export %s.%s', Carbon::now()->toDateTimeString(), $export_type);
-    }
-
-    private static function getExportType()
-    {
-        try {
-            $export_type = config("statamic-export.collections.{$items[0]->collection->handle}", config("statamic-export.default", "csv"));
-        } catch (Throwable $t) {
-            $export_type = config("statamic-export.default", "csv");
-        }
-        return $export_type;
     }
 }
