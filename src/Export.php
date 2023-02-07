@@ -9,28 +9,22 @@ use Illuminate\Support\Collection;
 use League\Csv\CannotInsertRecord;
 use League\Csv\Exception;
 use League\Csv\Writer;
+use Maatwebsite\Excel\Facades\Excel;
 use Statamic\Actions\Action;
+use Throwable;
 
 class Export extends Action
 {
-    /**
-     * Exclude statamic fields
-     */
-    const EXCLUDED_COLUMNS = [
-        'blueprint',
-        'updated_by',
-    ];
-
     /**
      * Title
      */
     public static function title()
     {
-        return __('CSV Export');
+        return __('Export');
     }
 
     /**
-     * Download items as CSV.
+     * Download items, based on configuration for specific collections. Defaults to CSV.
      *
      * @param $items
      * @param $values
@@ -40,16 +34,34 @@ class Export extends Action
      */
     public function download($items, $values)
     {
+        $export_type = $this::getExportType();
+
         $headers = $this::getHeaders($items);
         $entries = $this::getEntries($headers, $items);
+        switch ($export_type):
+            case "csv":
+                $csv = Writer::createFromString('');
+                $csv->insertOne($headers->toArray());
+                $csv->insertAll($entries->toArray());
 
-        $csv = Writer::createFromString('');
-        $csv->insertOne($headers->toArray());
-        $csv->insertAll($entries->toArray());
+                return new Response($csv->toString(), 200, [
+                    'Content-Disposition' => 'attachment; filename="' . $this::getFileName($export_type) . '"',
+                ]);
 
-        return new Response($csv->toString(), 200, [
-            'Content-Disposition' => 'attachment; filename="' . $this::getFileName() . '"',
-        ]);
+                break;
+            case "json":
+                $data = $items->map(function ($item) {
+                    return $item->data()->except(config("statamic-export.excluded_columns", []));
+                });
+
+                return response()
+                    ->json($data)
+                    ->header('Content-Disposition', 'attachment; filename="' . $this::getFileName($export_type) . '"');
+                break;
+            case "xlsx":
+                return Excel::download(new ArrayExport($headers->toArray(), $entries->toArray()), $this::getFileName($export_type));
+                break;
+        endswitch;
     }
 
     public function authorize($user, $item)
@@ -72,7 +84,7 @@ class Export extends Action
 
         foreach ($items as $item) {
             foreach ($item->data()->keys() as $key) {
-                if (in_array($key, static::EXCLUDED_COLUMNS)) {
+                if (in_array($key, config("statamic-export.excluded_columns", []))) {
                     continue;
                 }
 
@@ -117,8 +129,18 @@ class Export extends Action
      *
      * @return string
      */
-    private static function getFileName()
+    private static function getFileName($export_type)
     {
-        return sprintf('Export %s.csv', Carbon::now()->toDateTimeString());
+        return sprintf('Export %s.%s', Carbon::now()->toDateTimeString(), $export_type);
+    }
+
+    private static function getExportType()
+    {
+        try {
+            $export_type = config("statamic-export.collections.{$items[0]->collection->handle}", config("statamic-export.default", "csv"));
+        } catch (Throwable $t) {
+            $export_type = config("statamic-export.default", "csv");
+        }
+        return $export_type;
     }
 }
